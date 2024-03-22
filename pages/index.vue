@@ -9,25 +9,23 @@
         </div>
 
         
-        <div class="w-full p-2 flex justify-center">
-            <h1 class="text-2xl font-bold">Desconto</h1>
-        </div>
+        <div class="w-full my-10 flex justify-center">
 
-        <div class="w-full p-5 mt-5 flex justify-center">
-                
-            <div class="w-50 px-5">
-                <UCheckbox label="%5" v-model="option1" :value="5" :disabled="!itemsLength"/>
-            </div>
-            <div  class="w-50 px-5">
-                <UCheckbox id="" v-model="option2" label="%15" :value="15" :disabled="!itemsLength"/>
-            </div>
+            <UForm :state="state" class="space-y-4" @submit="calculate">
+
+                 <UFormGroup >
+                    <URadioGroup v-model="state.init" legend="Selecione a entrada" :options="options" />
+                </UFormGroup>
+
+                <UButton type="submit">
+                    calculate
+                </UButton>
+            </UForm>             
+
         </div>
         
-        <div class="w-full p-4 flex justify-center">
-            <UButton @click="calculate">Calcular</UButton>
-        </div>
 
-        <div class="w-full p-5 flex justify-center">
+        <div class="w-full mt-10 flex justify-center" v-if="showCard">
             <UCard class="w-64">
                 <template #header>
                     Valores
@@ -35,14 +33,9 @@
                 <span>Boleto: </span>
                 <div class="pl-5">
                     <ul>
-                        <li>
-                            1x: 40,00
-                        </li>
-                        <li>
-                            2x: 20,20
-                        </li>
-                        <li>
-                            3x: 13,45
+                        <li v-for="time in ticketTimes">
+                            {{time}}x: {{ time == 1 ? state.ticket.multiply(1.3).divide(time).toFormat('$0,0.00') 
+                            : state.ticket.multiply(1.3).divide(time).toFormat('$0,0.00') }}
                         </li>
                     </ul>
                 </div>
@@ -51,14 +44,8 @@
 
                 <div class="pl-5">
                     <ul>
-                        <li>
-                            1x: 40,00
-                        </li>
-                        <li>
-                            2x: 20,20
-                        </li>
-                        <li>
-                            3x: 13,45
+                        <li v-for="time in cardTimes">
+                            {{time}}x: {{ time == 1 ? state.card.toFormat('$0,0.00') : state.card.allocate([1, time - 1])[0].toFormat('$0,0.00') }}
                         </li>
                     </ul>
                 </div>
@@ -75,26 +62,56 @@
 </template>
 
 <script setup lang="ts">
-    let option1 = ref(false)
-    let option2 = ref(false)
-    const itemsTable = ref(null)
+    import Dinero from 'dinero.js'
+    
+    const Money = Dinero;
+    Money.defaultCurrency = 'BRL';
+    Money.defaultPrecision = 2;
 
-    function calculate() {
-        console.log(itemsValue.value)
+    let showCard = ref(false)
+    const itemsTable = ref(null)
+    const cardTimes = 18;
+    const ticketTimes = 30;
+
+    const options = [{
+        value: 5,
+        label: '5%'
+        }, {
+        value: 10,
+        label: '10%'
+        }, {
+        value: 15,
+        label: '15%'
+    }]
+
+    const state = reactive({
+        init: options[0].value,
+        card: Money({amount: 0}),
+        ticket: Money({amount: 0})
+    })
+
+    function calculate(event) {
+        showCard.value = true
+
+        state.card = itemsValue.value
+        console.log(itemsValue.value.allocate([1, 1])[1].getAmount())
+
+        const init = itemsValue.value.percentage(state.init)
+        state.ticket = itemsValue.value.subtract(init)
+        
     }
+
     const itemsLength = computed(() => {
         return itemsTable?.value?.itemsTable.length ?? 123;
     });
 
     const itemsValue = computed(() => {
-        return itemsTable?.value?.itemsTable?.reduce(function (acc, obj) { return acc + obj.value; }, 0);
+        return itemsTable?.value?.itemsTable?.reduce((acc, {value}) => { 
+            console.log(value)
+            return acc.add(value) 
+        }, Money({ amount: 0 }));
     });
 
-    watch(option1, (newVal) => {
-        option2.value = !newVal
-    });
+    
 
-    watch(option2, (newVal) => {
-        option1.value = !newVal
-    });
 </script>

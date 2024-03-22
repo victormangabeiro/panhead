@@ -12,7 +12,11 @@
 
     </div>
     <div class="w-full p-4">
-      <UTable :columns="columns" :rows="itemsTable" />
+      <UTable :columns="columns" :rows="itemsTable">
+        <template #value-data="{row}">
+          {{ row.value.toFormat('$0,0.00') }}
+        </template>
+      </UTable>
     </div>
 
   </div>
@@ -20,6 +24,11 @@
 </template>
 
 <script setup lang="ts">
+  import Dinero from 'dinero.js'
+  
+  const Money = Dinero;
+  Money.defaultCurrency = 'BRL';
+  Money.defaultPrecision = 2;
 
   const columns = [{
     key: 'id',
@@ -37,46 +46,20 @@
   }
   ]
 
-  const options = [{
+  let options = ref([{
     id: 1,
-    name: 'P1',
-    value: 100.20,
+    name: 'Frigideira 20 cm',
+    value: Money({ amount: 290000}) ,
     qtd: 1
   }, {
     id: 2,
-    name: 'F1',
-    value: 1000,
+    name: 'Paellera 26cm',
+    value: Money({ amount: 389000}),
     qtd: 1
-  }, {
-    id: 3,
-    name: 'F1',
-    value: 3000,
-    qtd: 1
-  }, {
-    id: 4,
-    name: 'F3',
-    title: 'Copywriter',
-    value: 5000,
-    qtd: 1
-  },
-  {
-    id: 5,
-    name: 'F4',
-    value: 12,
-    qtd: 1
-  },
-  {
-    id: 6,
-    name: 'G2',
-    value: 12,
-    qtd: 1
-
-  }]
+  }])
 
   const selected = ref(options[0]);
   const itemsTable: any = ref([]);
-
-  console.log(selected)
 
   watch(selected, (newVal) => {
     addToTable(selected);
@@ -84,6 +67,9 @@
 
   function addToTable(item: any) {
     itemsTable.value.push(item)
+    options.value = options.value.filter((pan) => {
+      return pan.id !== item.id
+    })
   }
 
   defineExpose({
