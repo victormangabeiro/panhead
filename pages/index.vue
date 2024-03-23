@@ -14,28 +14,38 @@
             <UForm :state="state" class="space-y-4" @submit="calculate">
 
                  <UFormGroup >
-                    <URadioGroup v-model="state.init" legend="Selecione a entrada" :options="options" />
+                    <URadioGroup v-model="state.init.perc" legend="Selecione a entrada" :options="options" @change="calculate" />
                 </UFormGroup>
-
-                <UButton type="submit">
-                    calculate
-                </UButton>
             </UForm>             
 
         </div>
         
 
-        <div class="w-full mt-10 flex justify-center" v-if="showCard">
-            <UCard class="w-64">
+        <div class="w-full mt-9 flex justify-center" v-if="showCard || itemsGifted?.length">
+            <UCard class="w-96">
                 <template #header>
                     Valores
                 </template>
                 <span>Boleto: </span>
                 <div class="pl-5">
                     <ul>
-                        <li v-for="time in ticketTimes">
-                            {{time}}x: {{ time == 1 ? state.ticket.multiply(1.3).divide(time).toFormat('$0,0.00') 
-                            : state.ticket.multiply(1.3).divide(time).toFormat('$0,0.00') }}
+                        <li>
+                            Entrada: {{ state.init.value.toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{1}}x: {{ state.ticket.multiply(1.3).divide(1).toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{2}}x: {{ state.ticket.multiply(1.3).divide(2).toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{3}}x: {{ state.ticket.multiply(1.3).divide(3).toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{18}}x: {{ state.ticket.multiply(1.3).divide(18).toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{30}}x: {{ state.ticket.multiply(1.3).divide(30).toFormat('$0,0.00') }}
                         </li>
                     </ul>
                 </div>
@@ -44,16 +54,43 @@
 
                 <div class="pl-5">
                     <ul>
-                        <li v-for="time in cardTimes">
-                            {{time}}x: {{ time == 1 ? state.card.toFormat('$0,0.00') : state.card.allocate([1, time - 1])[0].toFormat('$0,0.00') }}
+                        <li>
+                            {{1}}x: {{  state.card.toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{2}}x: {{ state.card.divide(2).toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{3}}x: {{ state.card.divide(2).toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{12}}x: {{ state.card.divide(12).toFormat('$0,0.00') }}
+                        </li>
+                        <li>
+                            {{18}}x: {{ state.card.divide(18).toFormat('$0,0.00') }}
                         </li>
                     </ul>
                 </div>
 
-                <span>Brindes:</span>
-                <div>
-                    R$70,00 15%
+                <div v-if="itemsGifted.length">
+                    <span>Brindes:</span>
+                    <div class="pl-5">
+                        <ul>
+                            <li v-for="item in itemsGifted">
+                                {{ item.name }} - {{ item.value.toFormat('$0,0.00') }}
+                            </li>
+                            <li>
+                                <span>Total: {{ itemsValueGifted?.toFormat('$0,0.00') }}</span>
+                            </li>
+                            <li>
+                                <span :class="{}">Porcentagem de brindes: {{ getPercetage(itemsValueGifted.getAmount(), itemsValue.getAmount()) }}%</span>
+                            </li>
+                        </ul>
+                        
+                        
+                    </div>
                 </div>
+
 
             </UCard>
         </div>
@@ -85,20 +122,23 @@
     }]
 
     const state = reactive({
-        init: options[0].value,
+        init: {perc: options[0].value, value: Money({amount: 0})},
         card: Money({amount: 0}),
         ticket: Money({amount: 0})
     })
 
-    function calculate(event) {
-        showCard.value = true
+    function getPercetage(value1, value2) {
+        const perc = ((value1 / value2) * 100)
+        return perc < 100 ? perc.toFixed(2) : 100
+    }
 
-        state.card = itemsValue.value
-        console.log(itemsValue.value.allocate([1, 1])[1].getAmount())
-
-        const init = itemsValue.value.percentage(state.init)
-        state.ticket = itemsValue.value.subtract(init)
+    function calculate() {
         
+        state.card = itemsValue.value
+
+        state.init.value = itemsValue.value.percentage(state.init.perc)
+        state.ticket = itemsValue.value.subtract(state.init.value)
+        showCard.value = state.card.getAmount() ? true : false
     }
 
     const itemsLength = computed(() => {
@@ -106,12 +146,27 @@
     });
 
     const itemsValue = computed(() => {
-        return itemsTable?.value?.itemsTable?.reduce((acc, {value}) => { 
+        return itemsTable?.value?.itemsTable?.reduce((acc, {value, gift}) => { 
             console.log(value)
-            return acc.add(value) 
+            return !gift ? acc.add(value) : acc
         }, Money({ amount: 0 }));
     });
 
-    
+    const itemsGifted = computed(() => {
+        return itemsTable?.value?.itemsTable?.filter((item) => { 
+            return !!item.gift
+        });
+    });
+
+    const itemsValueGifted = computed(() => {
+        return itemsTable?.value?.itemsTable?.reduce((acc, {value, gift}) => { 
+
+            return gift ? acc.add(value) : acc
+        }, Money({ amount: 0 }));
+    });
+
+    watch(itemsValue, (newVal) => {
+        calculate();
+    });    
 
 </script>

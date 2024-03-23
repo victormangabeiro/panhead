@@ -16,6 +16,9 @@
         <template #value-data="{row}">
           {{ row.value.toFormat('$0,0.00') }}
         </template>
+        <template #gift-data="{row}">
+          <UCheckbox v-model="row.gift" name="gift" label=""/>
+        </template>
       </UTable>
     </div>
 
@@ -43,14 +46,18 @@
   {
     key: 'qtd',
     label: 'Quantidade'
+  },
+  {
+    key: 'gift',
+    label: 'Brinde'
   }
   ]
 
   let options = ref([{
     id: 1,
     name: 'Frigideira 20 cm',
-    value: Money({ amount: 290000}) ,
-    qtd: 1
+    value: Money({ amount: 299000}) ,
+    qtd: 1,
   }, {
     id: 2,
     name: 'Paellera 26cm',
