@@ -35,7 +35,7 @@
 
   const columns = [{
     key: 'id',
-    label: 'Código'
+    label: 'COD'
   }, {
     key: 'name',
     label: 'Nome'
@@ -45,7 +45,7 @@
   },
   {
     key: 'qtd',
-    label: 'Quantidade'
+    label: 'Qtd'
   },
   {
     key: 'gift',

@@ -1,8 +1,8 @@
 
 <template>
-    <div class="w-full px-2">
+    <div class="w-full py-2">
 
-        <div class="w-full p-4 flex items-center justify">
+        <div class="w-full py-4 flex items-center justify">
             <div class="w-full">
                 <ProductList ref="itemsTable"></ProductList>
             </div>

@@ -28,7 +28,7 @@ const isDark = computed({
         </template>
       </ClientOnly>
     </header>
-    <main class="w-full h-full pt-4 px-8">
+    <main class="w-full h-full pt-4">
   
       <NuxtPage />
     </main>
