@@ -12,6 +12,7 @@ const isDark = computed({
 </script>
 
 <template>
+  <NuxtPwaManifest />
   <div class="w-full h-full">
     <header class="w-full h-full flex items-center pl-8">
       <h1 class="text-2xl font-bold">PWA</h1>
