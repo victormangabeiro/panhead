@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "nuxt build",
+        "build": "SW=true nuxt build",
         "dev": "nuxt dev",
         "dev-sw": "SW=true nuxt dev",
         "generate": "nuxt generate",
