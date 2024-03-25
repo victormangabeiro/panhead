@@ -33,16 +33,16 @@
                             Entrada: {{ state.init.value.toFormat('$0,0.00') }}
                         </li>
                         <li>
-                            {{1}}x: {{ state.ticket.multiply(1.3).divide(1).toFormat('$0,0.00') }}
+                            {{1}}x: {{ state.ticket.multiply(1.01).divide(1).toFormat('$0,0.00') }}
                         </li>
                         <li>
-                            {{2}}x: {{ state.ticket.multiply(1.3).divide(2).toFormat('$0,0.00') }}
+                            {{2}}x: {{ state.ticket.multiply(1.02).divide(2).toFormat('$0,0.00') }}
                         </li>
                         <li>
-                            {{3}}x: {{ state.ticket.multiply(1.3).divide(3).toFormat('$0,0.00') }}
+                            {{3}}x: {{ state.ticket.multiply(1.03).divide(3).toFormat('$0,0.00') }}
                         </li>
                         <li>
-                            {{18}}x: {{ state.ticket.multiply(1.3).divide(18).toFormat('$0,0.00') }}
+                            {{18}}x: {{ state.ticket.multiply(1.18).divide(18).toFormat('$0,0.00') }}
                         </li>
                         <li>
                             {{30}}x: {{ state.ticket.multiply(1.3).divide(30).toFormat('$0,0.00') }}
