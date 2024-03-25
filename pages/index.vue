@@ -14,7 +14,17 @@
             <UForm :state="state" class="space-y-4" @submit="calculate">
 
                  <UFormGroup >
-                    <URadioGroup v-model="state.init.perc" legend="Selecione a entrada" :options="options" @change="calculate" />
+                    <div class="flex-col" @click="resetInputInit">
+                        <label>Selecione a % da entrada:</label>
+                        <URadio v-model="state.init.perc" legend="Selecione a entrada" v-bind="options[0]" @change="calculate" />
+                        <URadio v-model="state.init.perc" legend="Selecione a entrada" v-bind="options[1]" @change="calculate" />
+                    </div>
+
+                    <div class="mt-2">
+                        <label>Ou o valor em reais:</label>
+                        <UInput color="primary" type="number" variant="outline" v-model="state.init.inputValue" placeholder="Valor em reais" @click="resetRadioInit" @change="calculate" @keyup="calculate"/>
+                    </div>
+                    
                 </UFormGroup>
             </UForm>             
 
@@ -27,50 +37,11 @@
                     Valores
                 </template>
                 <span>Boleto: </span>
-                <div class="pl-5">
-                    <ul>
-                        <li>
-                            Entrada: {{ state.init.value.toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{1}}x: {{ state.ticket.multiply(1.01).divide(1).toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{2}}x: {{ state.ticket.multiply(1.02).divide(2).toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{3}}x: {{ state.ticket.multiply(1.03).divide(3).toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{18}}x: {{ state.ticket.multiply(1.18).divide(18).toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{30}}x: {{ state.ticket.multiply(1.3).divide(30).toFormat('$0,0.00') }}
-                        </li>
-                    </ul>
-                </div>
+                <ValueList :times="ticketTimes" :values="state" type="ticket"></ValueList>
                 
                 <span>Cartão:</span>
 
-                <div class="pl-5">
-                    <ul>
-                        <li>
-                            {{1}}x: {{  state.card.toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{2}}x: {{ state.card.divide(2).toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{3}}x: {{ state.card.divide(2).toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{12}}x: {{ state.card.divide(12).toFormat('$0,0.00') }}
-                        </li>
-                        <li>
-                            {{18}}x: {{ state.card.divide(18).toFormat('$0,0.00') }}
-                        </li>
-                    </ul>
-                </div>
+                <ValueList :times="cardTimes" :values="state" type="card"></ValueList>
 
                 <div v-if="itemsGifted.length">
                     <span>Brindes:</span>
@@ -99,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+    import type { FormError } from '#ui/types'
     import Dinero from 'dinero.js'
     
     const Money = Dinero;
@@ -107,8 +79,8 @@
 
     let showCard = ref(false)
     const itemsTable = ref(null)
-    const cardTimes = 18;
-    const ticketTimes = 30;
+    const cardTimes = [1,2,3,12,18];
+    const ticketTimes = [1,2,3,12,18,30];
 
     const options = [{
         value: 5,
@@ -122,7 +94,14 @@
     }]
 
     const state = reactive({
-        init: {perc: options[0].value, value: Money({amount: 0})},
+        init: {
+            perc: options[0].value,
+            value: Money({amount: 0}),
+            inputValue: null,
+        },
+        errors: {
+            message: undefined
+        },
         card: Money({amount: 0}),
         ticket: Money({amount: 0})
     })
@@ -135,9 +114,20 @@
     function calculate() {
         
         state.card = itemsValue.value
-
+        state.ticket = itemsValue.value
         state.init.value = itemsValue.value.percentage(state.init.perc)
-        state.ticket = itemsValue.value.subtract(state.init.value)
+
+        if (state.init.inputValue) {
+            state.init.value = Money({amount: state.init.inputValue * 100})
+        }
+
+        if (state.init.value.getAmount() === 0) {
+            showCard.value = false    
+            return
+        }
+        console.log(itemsValue.value.getAmount())
+        console.log('card',state.card.getAmount())
+        if (itemsValue.value.getAmount() > 0) state.ticket = itemsValue.value.subtract(state.init.value)
         showCard.value = state.card.getAmount() ? true : false
     }
 
@@ -164,6 +154,15 @@
             return gift ? acc.add(value) : acc
         }, Money({ amount: 0 }));
     });
+
+
+    const resetRadioInit =  () => {
+        state.init.perc = 0
+    }
+
+    const resetInputInit =  () => {
+        state.init.inputValue = null
+    }
 
     watch(itemsValue, (newVal) => {
         calculate();
