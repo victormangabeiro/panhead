@@ -79,8 +79,8 @@
 
     let showCard = ref(false)
     const itemsTable = ref(null)
-    const cardTimes = [1,2,3,12,18];
-    const ticketTimes = [1,2,3,12,18,30];
+    const cardTimes = [12,18,21];
+    const ticketTimes = [12,24,10];
 
     const options = [{
         value: 5,

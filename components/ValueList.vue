@@ -43,7 +43,7 @@
       if (props.type === 'ticket') {
         timesValue.value = range(1, 31)
       } else {
-        timesValue.value = range(1, 18)
+        timesValue.value = range(1, 22)
       }
       return
     } 
