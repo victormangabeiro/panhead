@@ -1,11 +1,20 @@
 <template>
   <div class="pl-5">
-      <ul>
-          <li v-if="type === 'ticket'">
+      <ul v-if="type === 'ticket'">
+          <li>
               Entrada: {{ values.init.value.toFormat('$0,0.00') }}
           </li>
           <li v-for="time in timesValue">
               {{time}}x: {{ values.ticket.multiply(1 + (time * 0.01)).divide(time).toFormat('$0,0.00') }}
+          </li>
+      </ul>
+
+      <ul v-if="type === 'card'">
+          <li v-if="values.init.considerateCard">
+              Entrada: {{ values.init.value.toFormat('$0,0.00') }}
+          </li>
+          <li v-for="time in timesValue">
+              {{time}}x: {{ values.card.multiply(1 + (time * 0.01)).divide(time).toFormat('$0,0.00') }}
           </li>
       </ul>
       <ULink

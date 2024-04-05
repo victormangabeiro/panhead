@@ -13,7 +13,7 @@
 
             <UForm :state="state" class="space-y-4" @submit="calculate">
 
-                 <UFormGroup >
+                 <UFormGroup>
                     <div class="flex-col" @click="resetInputInit">
                         <label>Selecione a % da entrada:</label>
                         <URadio v-model="state.init.perc" legend="Selecione a entrada" v-bind="options[0]" @change="calculate" />
@@ -24,7 +24,11 @@
                         <label>Ou o valor em reais:</label>
                         <UInput color="primary" type="number" variant="outline" v-model="state.init.inputValue" placeholder="Valor em reais" @click="resetRadioInit" @change="calculate" @keyup="calculate"/>
                     </div>
-                    
+
+                    <div class="mt-2">
+                        <UCheckbox color="primary" label="Considerar a entrada para o cartão" variant="outline" v-model="state.init.considerateCard" @change="calculate" @keyup="calculate"/>
+                    </div>
+
                 </UFormGroup>
             </UForm>             
 
@@ -98,6 +102,7 @@
             perc: options[0].value,
             value: Money({amount: 0}),
             inputValue: null,
+            considerateCard: false
         },
         errors: {
             message: undefined
@@ -128,6 +133,8 @@
         console.log(itemsValue.value.getAmount())
         console.log('card',state.card.getAmount())
         if (itemsValue.value.getAmount() > 0) state.ticket = itemsValue.value.subtract(state.init.value)
+        if (state.init.considerateCard) state.card = itemsValue.value.subtract(state.init.value) 
+
         showCard.value = state.card.getAmount() ? true : false
     }
 
