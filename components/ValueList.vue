@@ -14,7 +14,7 @@
               Entrada: {{ values.init.value.toFormat('$0,0.00') }}
           </li>
           <li v-for="time in timesValue">
-              {{time}}x: {{ values.card.multiply(1 + (time * 0.01)).divide(time).toFormat('$0,0.00') }}
+              {{time}}x: {{ values.card.divide(time).toFormat('$0,0.00') }}
           </li>
       </ul>
       <ULink
@@ -52,6 +52,7 @@
       if (props.type === 'ticket') {
         timesValue.value = range(1, 31)
       } else {
+        console.log('!!!!',timesValue.value)
         timesValue.value = range(1, 22)
       }
       return
