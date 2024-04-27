@@ -2,7 +2,7 @@
   <div class="w-full">
 
     <div class="w-full p-4 flex justify-center">
-      <USelectMenu searchable searchable-placeholder="Procure um produto..." class="w-full lg:w-48"
+      <USelectMenu searchable searchable-placeholder="Procure um produto..." class="w-full lg:w-96"
         placeholder="Procure um produto" option-attribute="name" by="id" :options="options"
         @change="addToTable($event)">
         <template #option="{ option: options }">
